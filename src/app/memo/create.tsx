@@ -1,28 +1,49 @@
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  KeyboardAvoidingView,
-} from 'react-native';
-import CircleButton from 'components/CircleButton';
 import { FontAwesome5 } from '@expo/vector-icons';
+import CircleButton from 'components/CircleButton';
+import { db, auth } from 'config';
 import { router } from 'expo-router';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { useKeyboardHeight } from 'hooks/useKeyboardHeight';
+import { useState } from 'react';
+import { View, StyleSheet, TextInput, Animated } from 'react-native';
 
-const handlePress = (): void => {
-  router.back();
+const handlePress = (bodyText: string): void => {
+  if (auth.currentUser == null) return;
+  const ref = collection(db, `users/${auth.currentUser.uid}/memos`);
+  addDoc(ref, {
+    bodyText,
+    updatedAt: Timestamp.fromDate(new Date()),
+  })
+    .then(() => {
+      // console.log('docRef: ', docRef);
+      router.back();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
 
 const Create = () => {
-  return (
-    <KeyboardAvoidingView behavior="height" style={styles.container}>
-      <View style={styles.inputContainer}>
-        <TextInput multiline style={styles.input} value="" />
-      </View>
+  const [bodyText, setBodyText] = useState('');
+  const keyboardHeight = useKeyboardHeight();
 
-      <CircleButton onPress={handlePress}>
-        <FontAwesome5 name="check" size={25} />
-      </CircleButton>
-    </KeyboardAvoidingView>
+  return (
+    <View style={styles.container}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          multiline
+          style={styles.input}
+          value={bodyText}
+          onChangeText={(text) => setBodyText(text)}
+          autoFocus
+        />
+      </View>
+      <Animated.View style={{ marginBottom: keyboardHeight }}>
+        <CircleButton onPress={() => handlePress(bodyText)}>
+          <FontAwesome5 name="check" size={25} />
+        </CircleButton>
+      </Animated.View>
+    </View>
   );
 };
 
