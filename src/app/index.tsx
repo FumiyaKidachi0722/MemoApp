@@ -1,11 +1,8 @@
-import { View, Text } from 'react-native';
+import { Redirect } from 'expo-router';
 
-const Index = () => {
-  return (
-    <View>
-      <Text>Hello Wold</Text>
-    </View>
-  );
+const App = () => {
+  // return <Redirect href="memo/create" />;
+  return <Redirect href="auth/log_in" />;
 };
 
-export default Index;
+export default App;
