@@ -1,5 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import CircleButton from 'components/CircleButton';
+import DeleteAccountButton from 'components/DeleteAccountButton';
 import LogOutButton from 'components/LogOutButton';
 import MemoListItem from 'components/MemoListItem';
 import { db, auth } from 'config';
@@ -9,7 +10,6 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { type Memo } from 'types/memo';
-
 const handlePress = (): void => {
   router.push('/memo/create');
 };
@@ -19,9 +19,8 @@ const List = () => {
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => {
-        return <LogOutButton />;
-      },
+      headerRight: () => <LogOutButton />,
+      headerLeft: () => <DeleteAccountButton />, // ここに追加
     });
   }, []);
 

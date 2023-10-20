@@ -1,8 +1,12 @@
 import Button from 'components/Button';
-import { auth } from 'config';
+import { auth as firebaseAuth } from 'config';
 import { Link, router } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useState } from 'react';
+import {
+  signInWithEmailAndPassword,
+  signInAnonymously,
+  getAuth,
+} from 'firebase/auth';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,58 +16,72 @@ import {
   Alert,
 } from 'react-native';
 
-const handlePress = (email: string, password: string): void => {
-  // ログイン
-  signInWithEmailAndPassword(auth, email, password)
+const performEmailLogin = (email: string, password: string): void => {
+  signInWithEmailAndPassword(firebaseAuth, email, password)
     .then((userCredential) => {
-      console.log('userCredential: ', userCredential.user.uid);
+      console.log('Email login successful: ', userCredential.user.uid);
       router.replace('/memo/list');
     })
     .catch((error) => {
       const { code, message } = error;
-      console.log(code, ' : ', message);
+      console.log(`${code} : ${message}`);
       Alert.alert(message);
     });
 };
 
-const LogIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const performAnonymousLogin = (): void => {
+  const auth = getAuth();
+  signInAnonymously(auth)
+    .then((userCredential) => {
+      console.log('Anonymous login successful: ', userCredential.user.uid);
+    })
+    .catch((error) => {
+      const { code, message } = error;
+      console.log(`${code} : ${message}`);
+      Alert.alert(message);
+    });
+};
+
+const LogIn: React.FC = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   return (
     <View style={styles.container}>
-      <View style={styles.inner}>
+      <View style={styles.contentWrapper}>
         <Text style={styles.title}>Log In</Text>
         <TextInput
-          style={styles.input}
+          style={styles.inputField}
           value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-          }}
+          onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
           placeholder="Email Address"
           textContentType="emailAddress"
         />
         <TextInput
-          style={styles.input}
+          style={styles.inputField}
           value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-          }}
+          onChangeText={setPassword}
           autoCapitalize="none"
           secureTextEntry
           placeholder="Password"
           textContentType="password"
         />
-        <Button label="submit" onPress={() => handlePress(email, password)} />
+        <Button
+          label="Submit"
+          onPress={() => performEmailLogin(email, password)}
+        />
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Not registered</Text>
+          <Text style={styles.footerText}>Not registered?</Text>
           <Link href="/auth/sign_up" asChild replace>
             <TouchableOpacity>
               <Text style={styles.footerLink}>Sign up here!</Text>
             </TouchableOpacity>
           </Link>
+          <TouchableOpacity onPress={performAnonymousLogin}>
+            <Text style={styles.footerLink}>Log in anonymously</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -75,17 +93,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F0F4F8',
   },
-  inner: {
+  contentWrapper: {
     paddingVertical: 24,
     paddingHorizontal: 27,
   },
   title: {
     fontSize: 24,
-    lineHeight: 32,
     fontWeight: 'bold',
     marginBottom: 24,
   },
-  input: {
+  inputField: {
     borderWidth: 1,
     borderColor: '#DDD',
     backgroundColor: '#fff',
@@ -99,13 +116,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    lineHeight: 24,
     marginRight: 8,
     color: '#000',
   },
   footerLink: {
     fontSize: 14,
-    lineHeight: 24,
     color: '#467FD3',
   },
 });
