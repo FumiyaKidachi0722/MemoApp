@@ -28,3 +28,14 @@ npx expo install expo-router react-native-safe-area-context react-native-screens
 
 npx expo install @expo/vector-icons
 ```
+
+- 環境変数
+
+```
+EXPO_PUBLIC_FB_API_KEY=
+EXPO_PUBLIC_FB_AUTH_DOMAIN=
+EXPO_PUBLIC_FB_PROJECT_ID=
+EXPO_PUBLIC_FB_STORAGE_BUCKET=
+EXPO_PUBLIC_FB_MESSAGING_SENDERID=
+EXPO_PUBLIC_FB_APP_ID=
+```
